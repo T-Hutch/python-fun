@@ -28,6 +28,11 @@ def containsAll(let,word):
             return False
     return True
 
+def printDict(useDict,):
+    baseList = sorted(useDict.items(), key=lambda x:-x[1])
+    sortDict = dict(baseList[:10])
+    print(sortDict)
+
 def letterDict():
     return {
   "a" : 0, "b" : 0, "c" : 0,  "d" : 0,  "e" : 0,  "f" : 0,  "g" : 0,  "h" : 0,  "i" : 0,  "j" : 0,  "k" : 0,  "l" : 0,  "m" : 0, 
@@ -73,8 +78,32 @@ with open("wordle_complete_dictionary.txt") as source:
         total += 1
         r = source.readline()
 
+# Build Letter Probability Dictionary
+# Method using total incidence, including duplicates.
+propDict = letterDict()
+for word in wordList:
+    for n in range(0,4):
+        propDict[word[n]] = propDict.get(word[n]) + 1
+
+# Build Letter Probability Dictionary
+# Method using single letter incidence 
+#
+#propDict = letterDict()
+#for word in wordList:
+#    for n in propDict:
+#        if word.count(n) > 0:
+#            propDict[n] = propDict.get(n) + 1
+
+# Construct Best Guest
+propWords = {}
+for word in wordList:
+    wordTotal = 0
+    for n in range(0,4):
+        wordTotal = wordTotal + propDict[word[n]]
+    propWords[word] = wordTotal
+
 # Return dictionary size, and letter probability in order.
 print("Total Words Processed: ",total)
 print("Total Words Matched: ",count)
-print("Remaining List:")
-print(wordList)
+print("Highest Probability Guesses:")
+printDict(propWords)
