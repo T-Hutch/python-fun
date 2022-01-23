@@ -4,60 +4,120 @@ def letterDict():
 
 class WordSleuth:
 
+    # Internal Functions
+    def __resetProbabilities(self):
+        self.letProb = []
+        for n in range(0,5):
+            self.letProb.append(letterDict())
+        return
+
+    def __addProbabilities(self,r):
+        for i in range(0,5):
+            prob = self.letProb[i]
+            prob[r[i]] = prob.get(r[i]) + 1
+            self.letProb[i] = prob
+        return
+
+    def __passTemplate(self,word):
+        for i in range(0,5):
+            if self.template[i] == " ":
+               pass
+            elif self.template[i] != word[i]:
+                return False
+        return True
+
+    def __containsAny(self,let,word):
+        for c in let:
+            if word.count(c) > 0:
+                return True
+        return False
+
+    def __containsAll(self,let,word):
+        for c in let:
+            if word.count(c) == 0:
+                return False
+        return True
+
+    def __hasBadPlacement(self,word):
+        for n in range(0,5):
+            if self.badLocation[n].count(word[n]) > 0:
+                return True
+        return False
+
+    def __rescanWordList(self):
+        newList = []
+        for word in self.wordList:
+            if not self.__passTemplate(word):
+                print("Nope: ",word)
+                pass
+            elif not self.__containsAll(self.correctLetters,word):
+                pass
+            elif self.__containsAny(self.falseLetters,word):
+                pass
+            elif self.__hasBadPlacement(word):
+                pass
+            else:
+                newList.append(word)    
+        self.wordList = newList
+        return
+
+# Initialize New WordSleuth 
     def __init__(self, *args, **kwargs):
         # Letter Dictionaries
-        self.firstProp = letterDict()
-        self.secondProp = letterDict()
-        self.thirdProp = letterDict()
-        self.fourthProp = letterDict()
-        self.fifthProp = letterDict()
+        self.__resetProbabilities()
 
         # Word Guess Handling
-        self.wordlist = []
+        self.wordList = []
         self.correctLetters = []
         self.falseLetters = []
-        self.template = []
-        self.badLocation = {0:'',1:'',2:'',3:'',4:''}
+        self.template = [" "," "," "," "," "]
+        self.badLocation = ["","","","",""]
 
         #Initial Dictionary Load
         with open("wordle_complete_dictionary.txt") as source:
             r = source.readline()
             while r:
-                self.wordlist.append(r[0:5])
-                self.firstProp[r[0]] = self.firstProp.get(r[0]) + 1
-                self.secondProp[r[1]] = self.secondProp.get(r[1]) + 1
-                self.thirdProp[r[2]] = self.thirdProp.get(r[2]) + 1
-                self.fourthProp[r[3]] = self.fourthProp.get(r[3]) + 1
-                self.fifthProp[r[4]] = self.fifthProp.get(r[4]) + 1
+                self.wordList.append(r[0:5])
+                self.__addProbabilities(r[0:5])
                 r = source.readline()
         return super().__init__(*args, **kwargs)
 
-    # Result is in format +, -, =  (correct, incorrect, correct in position)
+# Affect current Word State using a new guess.
+# Result is in format +, -, =  (correct, incorrect, correct in position)
     def markGuess(self, guess, result):
-        for n in range(0,4):
+        for n in range(0,5):
             if result[n] == "=":
                 self.template[n] = guess[n]
+                self.correctLetters.append(guess[n])
             elif result[n] == "+":
                 self.correctLetters.append(guess[n])
+                self.badLocation[n] = self.badLocation[n] + guess[n]
             elif result[n] == "-":
                 self.falseLetters.append(guess[n])
 
-# Reset letter based probabilities when the base wordList changes
-    def updateProbabiliies():
-        self.firstProp = letterDict()
-        self.secondProp = letterDict()
-        self.thirdProp = letterDict()
-        self.fourthProp = letterDict()
-        self.fifthProp = letterDict()
+        self.__rescanWordList()
+
+        self.__resetProbabilities()
 
         for r in self.wordList:
-            self.firstProp[r[0]] = self.firstProp.get(r[0]) + 1
-            self.secondProp[r[1]] = self.secondProp.get(r[1]) + 1
-            self.thirdProp[r[2]] = self.thirdProp.get(r[2]) + 1
-            self.fourthProp[r[3]] = self.fourthProp.get(r[3]) + 1
-            self.fifthProp[r[4]] = self.fifthProp.get(r[4]) + 1
+            self.__addProbabilities(r)
 
+# Print Active List of Words
     def print_wordlList(self):
-        print(self.wordlist)
+        print(self.wordList)
+
+# Print State Data
+    def print_state(self):
+        print("Total Words:",len(self.wordList))
+        print("Correct Letters: ",self.correctLetters)
+        print("False Letters",self.falseLetters)
+        print("Template: ",self.template)
+        print("Known False Locations: ",self.badLocation)
+
+## Print Letter Probabilities
+    def print_letterProbs(self):
+        for n in range(0,5):
+            print("Letter ",n+1," Probabilities")
+            print(self.letProb[n])
 
 
