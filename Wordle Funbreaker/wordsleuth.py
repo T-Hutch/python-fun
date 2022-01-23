@@ -48,7 +48,6 @@ class WordSleuth:
         newList = []
         for word in self.wordList:
             if not self.__passTemplate(word):
-                print("Nope: ",word)
                 pass
             elif not self.__containsAll(self.correctLetters,word):
                 pass
@@ -120,4 +119,17 @@ class WordSleuth:
             print("Letter ",n+1," Probabilities")
             print(self.letProb[n])
 
-
+## Get best guesses for next word
+    def print_bestGuess(self):
+        probDict = {}
+        for word in self.wordList:
+            total = 0
+            used = []
+            for i in range(0,5):
+                modifier = 1.00 - (used.count(word[i]) * .33)
+                total = total + (self.letProb[i].get(word[i]) * modifier)
+                used.append(word[i])
+            probDict[word] = total
+        baseList = sorted(probDict.items(), key=lambda x:-x[1])
+        sortDict = dict(baseList[:20])
+        print(sortDict)
