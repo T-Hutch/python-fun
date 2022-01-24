@@ -44,6 +44,13 @@ class WordSleuth:
                 return True
         return False
 
+    def __hasBadDuplicates(self,word):
+        for n in range(0,5):
+            let = word[n]
+            if word.count(let) > 1 and (self.noDuplicate.count(let) > 0):
+                return True
+        return False
+
     def __rescanWordList(self):
         newList = []
         for word in self.wordList:
@@ -54,6 +61,9 @@ class WordSleuth:
             elif self.__containsAny(self.falseLetters,word):
                 pass
             elif self.__hasBadPlacement(word):
+                pass
+            elif self.__hasBadDuplicates(word):
+                print("Excluded: ",word)
                 pass
             else:
                 newList.append(word)    
@@ -69,6 +79,7 @@ class WordSleuth:
         self.wordList = []
         self.correctLetters = []
         self.falseLetters = []
+        self.noDuplicate = []
         self.template = [" "," "," "," "," "]
         self.badLocation = ["","","","",""]
 
@@ -92,7 +103,10 @@ class WordSleuth:
                 self.correctLetters.append(guess[n])
                 self.badLocation[n] = self.badLocation[n] + guess[n]
             elif result[n] == "-":
-                self.falseLetters.append(guess[n])
+                if self.correctLetters.count(guess[n]) > 0:
+                    self.noDuplicate.append(guess[n])
+                else: 
+                    self.falseLetters.append(guess[n])
 
         self.__rescanWordList()
 
@@ -112,6 +126,7 @@ class WordSleuth:
         print("False Letters",self.falseLetters)
         print("Template: ",self.template)
         print("Known False Locations: ",self.badLocation)
+        print("Known Non-Duplicates",self.noDuplicate)
 
 ## Print Letter Probabilities
     def print_letterProbs(self):

@@ -12,13 +12,18 @@ sleuth.print_bestGuess()
 
 while word != "exit":
     word = input("Guess:")
+
+    if not word or word == exit:
+        break
+
     print("Output your result:  = for in place match, + for correct letter, - for incorrect letter")
     guess = input("Result:")
-    print()
     if guess == "=====":
         break
+
+    print()
     sleuth.markGuess(word,guess)
-    print("Dictionary had been adjusted:")
+    print("Dictionary has been adjusted:")
     sleuth.print_state()
     print("Potential guesses")
     sleuth.print_bestGuess()
